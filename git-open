@@ -34,18 +34,32 @@ if [[ -z "$giturl" ]]; then
   exit 1
 fi
 
-# Initial case examples: 'git@example.com:user/project', 'https://example.com:8080/scm/user/project.git/'
-# Trim "/" and ".git" from the end of the url
-giturl=${giturl%/} giturl=${giturl%.git}
+# Determine whether this is a url (https, ssh, git+ssh...) or a scp-style path
+if [[ "$giturl" =~ ^[a-z\+]+://.* ]]; then
+  # Trim URL scheme and possible username
+  scheme=${giturl%%://*}
+  uri=${giturl#*://}
+  uri=${uri#*@}
 
-# Trim before last '@' and protocol (*://) from beginning
-uri=${giturl##*@} uri=${uri##*://}
+  # Split on first '/' to get server name and path
+  server=${uri%%/*}
+  urlpath=${uri#*/}
 
-# Trims before first ':' or '/' to get path
-urlpath=${uri#*[/:]}
+  # Remove port number from non-http/https protocols (ie, ssh)
+  if [[ $scheme != "https" && $scheme != "http" ]]; then
+    server=${server%:*}
+  fi
+else
+  # Trim possible username
+  uri=${giturl##*@}
 
-# Trims after first ':' or '/' to remove path
-server=${uri%%[/:]*}
+  # Split on first ':' to get server name and path
+  server=${uri%%:*}
+  urlpath=${uri#*:}
+fi
+
+# Trim "/" from beginning of URL; "/" and ".git" from end of URL
+urlpath=${urlpath#/} urlpath=${urlpath%/} urlpath=${urlpath%.git}
 
 # Get current branch
 branch=${2:-$(git symbolic-ref -q --short HEAD)}
@@ -74,8 +88,11 @@ elif [[ ${pathargs[0]} == 'scm' ]]; then
   providerBranchRef="browse?at=$branch"
 fi
 
-# @TODO: support non-https?
-openurl="https://$server/$urlpath"
+# if the url is provided as "http", preserve that, otherwise use "https"
+if [[ $scheme != "http" ]]; then
+  scheme="https"
+fi
+openurl="$scheme://$server/$urlpath"
 
 # simplify URL for master
 if [[ $branch != "master" ]]; then

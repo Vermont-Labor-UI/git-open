@@ -104,6 +104,23 @@ setup() {
   assert_output "https://github.com/paulirish/git-open/tree/just-50%25"
 }
 
+@test "basic: https url can contain port" {
+  git remote set-url origin "https://github.com:443/user/repo.git"
+  run ../git-open
+  assert_output "https://github.com:443/user/repo"
+}
+
+@test "basic: ssh url has port removed from http url" {
+  git remote set-url origin "ssh://github.com:22/user/repo.git"
+  run ../git-open
+  assert_output "https://github.com/user/repo"
+}
+
+@test "basic: http url scheme is preserved" {
+  git remote set-url origin "http://github.com/user/repo.git"
+  run ../git-open
+  assert_output "http://github.com/user/repo"
+}
 
 
 ##
