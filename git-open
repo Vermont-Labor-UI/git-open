@@ -41,6 +41,12 @@ if [[ "$giturl" =~ ^[a-z\+]+://.* ]]; then
   uri=${giturl#*://}
   uri=${uri#*@}
 
+  if [[ "$uri" =~ "vs-ssh" ]]; then
+    uri="${uri/vs-ssh/iusdev}"
+    uri="${uri/_ssh/_git}"
+    echo $uri
+  fi
+
   # Split on first '/' to get server name and path
   server=${uri%%/*}
   urlpath=${uri#*/}
