@@ -41,7 +41,7 @@ or copy `git-open` into an existing included path like `/usr/local/bin`).
 You can use also `npm` to install this package:
 
 ```sh
-npm install --global git-open
+ npm install --global ius-gov/git-open
 ```
 
 #### Using Windows Powershell
