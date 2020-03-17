@@ -42,7 +42,7 @@ or copy `git-open` into an existing included path like `/usr/local/bin`).
 ### Install via NPM:
 
 ```sh
- npm install --global ius-gov/git-open
+ npm install --global Vermont-Labor-UI/git-open
 ```
 
 ### Windows Powershell
